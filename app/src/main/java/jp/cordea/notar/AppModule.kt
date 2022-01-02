@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import jp.cordea.notar.api.NotionApi
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType
@@ -42,4 +43,8 @@ object AppModule {
             )
             .client(client)
             .build()
+
+    @Provides
+    fun provideNotionApi(retrofit: Retrofit): NotionApi =
+        retrofit.create(NotionApi::class.java)
 }
