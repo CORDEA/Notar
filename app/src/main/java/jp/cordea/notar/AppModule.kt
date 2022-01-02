@@ -15,8 +15,7 @@ import retrofit2.Retrofit
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
-    // TODO
-    fun provideClient(token: String): OkHttpClient =
+    fun provideClient(): OkHttpClient =
         OkHttpClient
             .Builder()
             .addInterceptor {
@@ -24,7 +23,10 @@ object AppModule {
                     it
                         .request()
                         .newBuilder()
-                        .addHeader("Authorization", "Bearer $token")
+                        .addHeader(
+                            "Authorization",
+                            "Bearer ${BuildConfig.API_TOKEN}"
+                        )
                         .build()
                 )
             }

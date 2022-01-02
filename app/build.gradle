@@ -6,6 +6,9 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
+def props = new Properties();
+file("notion.properties").withInputStream { props.load(it) }
+
 android {
     compileSdk 31
 
@@ -22,6 +25,13 @@ android {
         }
     }
 
+    flavorDimensions "app"
+    productFlavors {
+        dev {
+            dimension "app"
+            buildConfigField "String", "API_TOKEN", "\"${props.getProperty("notion.api.token")}\""
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
