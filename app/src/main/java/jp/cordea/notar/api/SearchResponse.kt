@@ -4,20 +4,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class SearchResponse(
+data class SearchResponse(
     val results: List<Result>
 ) {
     @Serializable
-    class Result(
+    data class Result(
+        val id: String,
         val archived: Boolean,
         @SerialName("created_time")
         val createdAt: String,
-        val title: List<Title>
-    ) {
-        @Serializable
-        class Title(
-            @SerialName("plain_text")
-            val plainText: String
-        )
-    }
+        @Serializable(with = PagePropertiesSerializer::class)
+        val properties: PageProperties,
+        val url: String
+    )
 }
