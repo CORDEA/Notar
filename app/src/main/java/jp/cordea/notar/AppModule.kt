@@ -16,6 +16,10 @@ import retrofit2.Retrofit
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
+    fun provideJson(): Json =
+        Json { ignoreUnknownKeys = true }
+
+    @Provides
     fun provideClient(): OkHttpClient =
         OkHttpClient
             .Builder()
@@ -28,6 +32,10 @@ object AppModule {
                             "Authorization",
                             "Bearer ${BuildConfig.API_TOKEN}"
                         )
+                        .addHeader(
+                            "Notion-Version",
+                            "2021-08-16"
+                        )
                         .build()
                 )
             }
@@ -35,11 +43,11 @@ object AppModule {
 
     @Provides
     @ExperimentalSerializationApi
-    fun provideRetrofit(client: OkHttpClient): Retrofit =
+    fun provideRetrofit(client: OkHttpClient, json: Json): Retrofit =
         Retrofit.Builder()
             .baseUrl("https://api.notion.com")
             .addConverterFactory(
-                Json.asConverterFactory(MediaType.parse("application/json")!!)
+                json.asConverterFactory(MediaType.parse("application/json")!!)
             )
             .client(client)
             .build()
