@@ -10,15 +10,7 @@ import javax.inject.Singleton
 class SearchRepository @Inject constructor(
     private val api: NotionApi
 ) {
-    suspend fun search(query: String, filter: String) = Either.catch {
-        api.search(
-            SearchRequestBody(
-                query = query,
-                filter = SearchRequestBody.Filter(
-                    value = filter,
-                    property = null
-                )
-            )
-        )
+    suspend fun search(query: String) = Either.catch {
+        api.search(SearchRequestBody(query))
     }
 }
