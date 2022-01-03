@@ -1,8 +1,7 @@
 package jp.cordea.notar.ui.home
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -11,6 +10,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
@@ -56,5 +56,21 @@ fun Home(viewModel: HomeViewModel) {
             },
         )
     }) {
+        LazyColumn(contentPadding = PaddingValues(all = 16.dp)) {
+        }
+    }
+}
+
+@Composable
+private fun HomeItem() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+    ) {
+        Text(
+            text = "",
+            modifier = Modifier.align(alignment = Alignment.CenterStart)
+        )
     }
 }
