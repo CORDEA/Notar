@@ -31,17 +31,16 @@ class HomeViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            repository.search(query)
-                .map { response ->
-                    response.results.map {
-                        HomeItemViewModel.from(it)
+            _items.value = repository.search(query)
+                .tapLeft { it.printStackTrace() }
+                .fold(
+                    { emptyList() },
+                    { response ->
+                        response.results.map {
+                            HomeItemViewModel.from(it)
+                        }
                     }
-                }
-                .tap { _items.value = it }
-                .tapLeft {
-                    it.printStackTrace()
-                    _items.value = emptyList()
-                }
+                )
         }
     }
 }
