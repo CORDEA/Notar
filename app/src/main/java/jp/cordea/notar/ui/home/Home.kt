@@ -56,20 +56,23 @@ fun Home(viewModel: HomeViewModel) {
             },
         )
     }) {
-        LazyColumn(contentPadding = PaddingValues(all = 16.dp)) {
+        val items by viewModel.items.observeAsState(emptyList())
+        LazyColumn(contentPadding = PaddingValues(vertical = 16.dp)) {
+            items.map { item { HomeItem(viewModel = it) } }
         }
     }
 }
 
 @Composable
-private fun HomeItem() {
+private fun HomeItem(viewModel: HomeItemViewModel) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text(
-            text = "",
+            text = viewModel.title,
             modifier = Modifier.align(alignment = Alignment.CenterStart)
         )
     }
