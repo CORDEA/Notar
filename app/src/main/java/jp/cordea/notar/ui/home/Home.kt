@@ -3,6 +3,8 @@ package jp.cordea.notar.ui.home
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -11,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -36,6 +39,12 @@ fun Home(viewModel: HomeViewModel) {
                     singleLine = true,
                     value = query,
                     onValueChange = viewModel::onSearchQueryChanged,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions {
+                        viewModel.onSearchQuerySubmitted()
+                    },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         disabledBorderColor = Color.Transparent,
                         errorBorderColor = Color.Transparent,
