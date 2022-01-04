@@ -4,22 +4,29 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.cordea.notar.api.PageProperty
 import jp.cordea.notar.api.SearchResponse
-import jp.cordea.notar.repository.SearchRepository
+import jp.cordea.notar.usecase.GetObjectsUseCase
+import jp.cordea.notar.usecase.SearchObjectsUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: SearchRepository
+    private val getObjectsUseCase: GetObjectsUseCase,
+    private val searchObjectsUseCase: SearchObjectsUseCase
 ) : ViewModel() {
     private var _query = MutableLiveData("")
     val query: LiveData<String> get() = _query
 
     private var _items = MutableLiveData(emptyList<HomeItemViewModel>())
     val items: LiveData<List<HomeItemViewModel>> get() = _items
+
+    init {
+        refresh()
+    }
 
     fun onSearchQueryChanged(query: String) {
         _query.value = query
@@ -28,20 +35,27 @@ class HomeViewModel @Inject constructor(
     fun onSearchQuerySubmitted() {
         val query = _query.value
         if (query.isNullOrBlank()) {
+            refresh()
             return
         }
         viewModelScope.launch {
-            _items.value = repository.search(query)
+            _items.value = searchObjectsUseCase.execute(query)
                 .tapLeft { it.printStackTrace() }
-                .fold(
-                    { emptyList() },
-                    { response ->
-                        response.results.map {
-                            HomeItemViewModel.from(it)
-                        }
-                    }
-                )
+                .foldResponse()
         }
+    }
+
+    private fun refresh() = viewModelScope.launch {
+        _items.value = getObjectsUseCase.execute()
+            .tapLeft { it.printStackTrace() }
+            .foldResponse()
+    }
+
+    private fun Either<Throwable, SearchResponse>.foldResponse(): List<HomeItemViewModel> {
+        return fold(
+            { emptyList() },
+            { it.results.map(HomeItemViewModel::from) }
+        )
     }
 }
 
