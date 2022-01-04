@@ -11,15 +11,18 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
+    @Singleton
     fun provideJson(): Json =
         Json { ignoreUnknownKeys = true }
 
     @Provides
+    @Singleton
     fun provideClient(): OkHttpClient =
         OkHttpClient
             .Builder()
@@ -42,6 +45,7 @@ object AppModule {
             .build()
 
     @Provides
+    @Singleton
     @ExperimentalSerializationApi
     fun provideRetrofit(client: OkHttpClient, json: Json): Retrofit =
         Retrofit.Builder()
@@ -53,6 +57,7 @@ object AppModule {
             .build()
 
     @Provides
+    @Singleton
     fun provideNotionApi(retrofit: Retrofit): NotionApi =
         retrofit.create(NotionApi::class.java)
 }
