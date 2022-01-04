@@ -5,11 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
+import arrow.core.toOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.cordea.notar.api.PageProperty
 import jp.cordea.notar.api.SearchResponse
 import jp.cordea.notar.usecase.GetObjectsUseCase
 import jp.cordea.notar.usecase.SearchObjectsUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,6 +20,8 @@ class HomeViewModel @Inject constructor(
     private val getObjectsUseCase: GetObjectsUseCase,
     private val searchObjectsUseCase: SearchObjectsUseCase
 ) : ViewModel() {
+    private var searchJob: Job? = null
+
     private var _query = MutableLiveData("")
     val query: LiveData<String> get() = _query
 
@@ -25,7 +29,7 @@ class HomeViewModel @Inject constructor(
     val items: LiveData<List<HomeItemViewModel>> get() = _items
 
     init {
-        refresh()
+        viewModelScope.launch { refresh() }
     }
 
     fun onSearchQueryChanged(query: String) {
@@ -33,19 +37,23 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSearchQuerySubmitted() {
-        val query = _query.value
-        if (query.isNullOrBlank()) {
-            refresh()
-            return
-        }
-        viewModelScope.launch {
-            _items.value = searchObjectsUseCase.execute(query)
-                .tapLeft { it.printStackTrace() }
-                .foldResponse()
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            _query.value
+                .toOption()
+                .filter { it.isNotBlank() }
+                .fold(
+                    { refresh() },
+                    { query ->
+                        _items.value = searchObjectsUseCase.execute(query)
+                            .tapLeft { it.printStackTrace() }
+                            .foldResponse()
+                    }
+                )
         }
     }
 
-    private fun refresh() = viewModelScope.launch {
+    private suspend fun refresh() {
         _items.value = getObjectsUseCase.execute()
             .tapLeft { it.printStackTrace() }
             .foldResponse()
